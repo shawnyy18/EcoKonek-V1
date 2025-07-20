@@ -1,3 +1,4 @@
+
 'use client';
 
 interface CardProps {
@@ -15,7 +16,7 @@ export default function Card({
   shadow = 'md',
   padding = 'md'
 }: CardProps) {
-  const baseClasses = 'bg-white rounded-2xl border border-gray-100 transition-all duration-200';
+  const baseClasses = 'bg-white rounded-2xl border border-gray-100 transition-all duration-300';
   
   const shadows = {
     none: '',

@@ -1,3 +1,4 @@
+
 'use client';
 
 interface HeaderProps {
@@ -14,7 +15,7 @@ export default function Header({
   rightAction 
 }: HeaderProps) {
   return (
-    <header className="fixed top-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 z-50">
+    <header className="fixed top-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 z-50 transition-colors duration-300">
       <div className="flex items-center justify-between h-16 px-4">
         <div className="flex items-center gap-3">
           {showBack && (

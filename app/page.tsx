@@ -8,22 +8,22 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
 export default function Home() {
-  const [user] = useState({ name: 'Shawn Ashlee', points: 1250 });
+  const [user] = useState({ name: 'Shawn Ashlee Guarin', points: 1250 });
 
   const quickActions = [
-    {
-      title: 'Schedule E-Waste Pickup',
-      description: 'Book a collection for your electronic waste',
-      icon: 'ri-calendar-check-line',
-      color: 'from-[#4CAF50] to-[#66BB6A]',
-      href: '/schedule'
-    },
     {
       title: 'Donate Devices',
       description: 'Give working devices a second life',
       icon: 'ri-gift-line',
       color: 'from-[#66BB6A] to-[#81C784]',
       href: '/donate'
+    },
+    {
+      title: 'Find Community',
+      description: 'Connect with eco-warriors near you',
+      icon: 'ri-group-line',
+      color: 'from-[#42A5F5] to-[#64B5F6]',
+      href: '/community'
     },
     {
       title: 'Learn About E-Waste',

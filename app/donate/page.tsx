@@ -8,279 +8,317 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
+interface ItemForm {
+  condition: 'working' | 'not-working' | '';
+  quantity: string;
+  photo: File | null;
+  action: 'donate' | 'recycle' | '';
+}
+
 export default function Donate() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [deviceType, setDeviceType] = useState('');
-  const [deviceCondition, setDeviceCondition] = useState('');
-  const [deviceDetails, setDeviceDetails] = useState({
-    brand: '',
-    model: '',
-    year: '',
-    description: ''
+  const [selectedItem, setSelectedItem] = useState<string>('');
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState<ItemForm>({
+    condition: '',
+    quantity: '1',
+    photo: null,
+    action: '',
   });
 
-  const deviceTypes = [
-    { id: 'smartphone', name: 'Smartphone', icon: 'ri-smartphone-line', image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20modern%20smartphone%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=donate-phone&orientation=squarish' },
-    { id: 'laptop', name: 'Laptop', icon: 'ri-computer-line', image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20laptop%20computer%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=donate-laptop&orientation=squarish' },
-    { id: 'tablet', name: 'Tablet', icon: 'ri-tablet-line', image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20tablet%20device%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=donate-tablet&orientation=squarish' },
-    { id: 'desktop', name: 'Desktop PC', icon: 'ri-computer-line', image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20desktop%20computer%20tower%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=donate-desktop&orientation=squarish' }
+  const ewasteCategories = [
+    {
+      id: 'smartphones',
+      name: 'Smartphones',
+      icon: 'ri-smartphone-line',
+      description: 'Mobile phones, old smartphones',
+      image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20modern%20smartphone%20device%2C%20sleek%20design%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=eco-phone&orientation=squarish',
+    },
+    {
+      id: 'laptops',
+      name: 'Laptops',
+      icon: 'ri-computer-line',
+      description: 'Notebooks, old computers',
+      image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20laptop%20computer%2C%20modern%20design%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=eco-laptop&orientation=squarish',
+    },
+    {
+      id: 'tablets',
+      name: 'Tablets',
+      icon: 'ri-tablet-line',
+      description: 'iPads, Android tablets',
+      image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20tablet%20device%2C%20sleek%20modern%20design%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=eco-tablet&orientation=squarish',
+    },
+    {
+      id: 'batteries',
+      name: 'Batteries',
+      icon: 'ri-battery-line',
+      description: 'Rechargeable, AA, AAA batteries',
+      image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20battery%20pack%20and%20small%20batteries%2C%20various%20sizes%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=eco-battery&orientation=squarish',
+    },
+    {
+      id: 'cables',
+      name: 'Cables & Chargers',
+      icon: 'ri-plug-line',
+      description: 'USB cables, phone chargers',
+      image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20USB%20cables%20and%20chargers%20bundle%2C%20various%20types%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=eco-cables&orientation=squarish',
+    },
+    {
+      id: 'appliances',
+      name: 'Small Appliances',
+      icon: 'ri-tools-line',
+      description: 'Electric kettles, blenders, toasters',
+      image: 'https://readdy.ai/api/search-image?query=icon%2C%20realistic%20small%20kitchen%20appliances%20including%20electric%20kettle%20and%20blender%2C%20modern%20design%2C%20high-detail%203D%20rendering%2C%20prominent%20main%20subject%2C%20clear%20and%20sharp%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style&width=100&height=100&seq=eco-appliances&orientation=squarish',
+    },
   ];
 
-  const conditions = [
-    { 
-      id: 'excellent', 
-      name: 'Excellent', 
-      description: 'Like new, minimal wear',
-      color: 'from-green-500 to-green-600',
-      icon: 'ri-star-line'
-    },
-    { 
-      id: 'good', 
-      name: 'Good', 
-      description: 'Works well, minor scratches',
-      color: 'from-blue-500 to-blue-600',
-      icon: 'ri-thumb-up-line'
-    },
-    { 
-      id: 'fair', 
-      name: 'Fair', 
-      description: 'Functional but shows wear',
-      color: 'from-yellow-500 to-yellow-600',
-      icon: 'ri-tools-line'
-    },
-    { 
-      id: 'needs-repair', 
-      name: 'Needs Repair', 
-      description: 'Has issues but repairable',
-      color: 'from-orange-500 to-orange-600',
-      icon: 'ri-hammer-line'
+  const handleItemSelect = (categoryId: string) => {
+    setSelectedItem(categoryId);
+    setShowForm(true);
+    setFormData({
+      condition: '',
+      quantity: '1',
+      photo: null,
+      action: '',
+    });
+  };
+
+  const handleBack = () => {
+    if (showForm) {
+      setShowForm(false);
+      setSelectedItem('');
+    } else {
+      router.push('/');
     }
-  ];
+  };
 
-  const handleNext = () => {
-    if (currentStep === 1 && deviceType) {
-      setCurrentStep(2);
-    } else if (currentStep === 2 && deviceCondition) {
-      setCurrentStep(3);
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setFormData({ ...formData, photo: file });
     }
   };
 
   const handleSubmit = () => {
-    router.push('/donate/success');
-  };
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">What device are you donating?</h2>
-              <p className="text-gray-600">Select the type of device you'd like to donate</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {deviceTypes.map((device) => (
-                <Card
-                  key={device.id}
-                  onClick={() => setDeviceType(device.id)}
-                  className={`cursor-pointer transition-all ${
-                    deviceType === device.id 
-                      ? 'border-[#4CAF50] bg-[#4CAF50]/5 shadow-lg' 
-                      : 'hover:shadow-md'
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="w-20 h-20 mx-auto mb-4 rounded-2xl overflow-hidden bg-gray-50">
-                      <img 
-                        src={device.image} 
-                        alt={device.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <p className="font-semibold text-gray-900">{device.name}</p>
-                  </div>
-                  {deviceType === device.id && (
-                    <div className="absolute top-3 right-3 w-6 h-6 bg-[#4CAF50] rounded-full flex items-center justify-center">
-                      <i className="ri-check-line text-white text-sm"></i>
-                    </div>
-                  )}
-                </Card>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Device Condition</h2>
-              <p className="text-gray-600">How would you rate the condition of your device?</p>
-            </div>
-
-            <div className="space-y-3">
-              {conditions.map((condition) => (
-                <Card
-                  key={condition.id}
-                  onClick={() => setDeviceCondition(condition.id)}
-                  className={`cursor-pointer transition-all ${
-                    deviceCondition === condition.id 
-                      ? 'border-[#4CAF50] bg-[#4CAF50]/5 shadow-lg' 
-                      : 'hover:shadow-md'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${condition.color} flex items-center justify-center text-white shadow-md`}>
-                      <i className={`${condition.icon} text-xl`}></i>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">{condition.name}</h3>
-                      <p className="text-sm text-gray-600">{condition.description}</p>
-                    </div>
-                    {deviceCondition === condition.id && (
-                      <i className="ri-check-line text-[#4CAF50] text-xl"></i>
-                    )}
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Device Details</h2>
-              <p className="text-gray-600">Help us better understand your donation</p>
-            </div>
-
-            <div className="space-y-4">
-              <Input
-                label="Brand"
-                placeholder="e.g., Apple, Samsung, Dell"
-                value={deviceDetails.brand}
-                onChange={(e) => setDeviceDetails({...deviceDetails, brand: e.target.value})}
-              />
-              
-              <Input
-                label="Model"
-                placeholder="e.g., iPhone 12, Galaxy S21"
-                value={deviceDetails.model}
-                onChange={(e) => setDeviceDetails({...deviceDetails, model: e.target.value})}
-              />
-              
-              <Input
-                label="Year"
-                placeholder="e.g., 2020"
-                value={deviceDetails.year}
-                onChange={(e) => setDeviceDetails({...deviceDetails, year: e.target.value})}
-              />
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Additional Description
-                </label>
-                <textarea
-                  value={deviceDetails.description}
-                  onChange={(e) => setDeviceDetails({...deviceDetails, description: e.target.value})}
-                  placeholder="Any additional details about the device..."
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent transition-all duration-200 text-sm resize-none"
-                  rows={4}
-                />
-              </div>
-            </div>
-
-            <Card className="bg-[#4CAF50]/5 border-[#4CAF50]/20">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-[#4CAF50]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <i className="ri-information-line text-[#4CAF50] text-sm"></i>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-[#4CAF50] mb-1">Impact of Your Donation</h4>
-                  <p className="text-sm text-gray-700">
-                    Your donated device will be refurbished and given to students or families in need, 
-                    helping bridge the digital divide while reducing e-waste.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
-        );
-
-      default:
-        return null;
+    if (formData.condition && formData.action && formData.quantity) {
+      router.push('/donate/success');
     }
   };
 
+  const canSubmit = formData.condition !== '' && formData.action !== '' && formData.quantity !== '';
+  const selectedCategory = ewasteCategories.find((cat) => cat.id === selectedItem);
+
+  if (showForm && selectedCategory) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-white pb-24">
+        <Header title={selectedCategory.name} showBack onBack={handleBack} />
+
+        <main className="pt-20 px-4">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 rounded-3xl overflow-hidden bg-white shadow-lg mx-auto mb-4">
+              <img src={selectedCategory.image} alt={selectedCategory.name} className="w-full h-full object-cover" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Item Details</h2>
+            <p className="text-gray-600">Please provide information about your {selectedCategory.name.toLowerCase()}</p>
+          </div>
+
+          <form className="space-y-6">
+            <Card>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Item Condition *</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, condition: 'working' })}
+                      className={`p-4 rounded-2xl border-2 transition-all text-sm font-medium relative ${
+                        formData.condition === 'working'
+                          ? 'border-green-500 bg-green-50 text-green-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <i className="ri-check-circle-line text-2xl"></i>
+                        <span>Working</span>
+                      </div>
+                      {formData.condition === 'working' && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <i className="ri-check-line text-white text-sm"></i>
+                        </div>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, condition: 'not-working' })}
+                      className={`p-4 rounded-2xl border-2 transition-all text-sm font-medium ${
+                        formData.condition === 'not-working'
+                          ? 'border-orange-500 bg-orange-50 text-orange-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <i className="ri-close-circle-line text-2xl"></i>
+                        <span>Not Working</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Quantity *</label>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({ ...formData, quantity: Math.max(1, parseInt(formData.quantity) - 1).toString() })
+                      }
+                      className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                    >
+                      <i className="ri-subtract-line text-gray-600"></i>
+                    </button>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={formData.quantity}
+                      onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                      className="text-center font-semibold w-20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({ ...formData, quantity: Math.min(50, parseInt(formData.quantity) + 1).toString() })
+                      }
+                      className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                    >
+                      <i className="ri-add-line text-gray-600"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Photo Upload (Optional)</label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      id="photo-upload"
+                    />
+                    <label
+                      htmlFor="photo-upload"
+                      className="block w-full p-4 border-2 border-dashed border-gray-300 rounded-2xl hover:border-green-400 transition-colors cursor-pointer"
+                    >
+                      <div className="text-center">
+                        {formData.photo ? (
+                          <div className="flex items-center justify-center gap-2 text-green-600">
+                            <i className="ri-image-line text-xl"></i>
+                            <span className="text-sm font-medium">{formData.photo.name}</span>
+                          </div>
+                        ) : (
+                          <div className="text-gray-500">
+                            <i className="ri-camera-line text-2xl mb-2"></i>
+                            <p className="text-sm">Tap to add photo</p>
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Preferred Action *</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, action: 'donate' })}
+                      className={`p-4 rounded-2xl border-2 transition-all text-sm font-medium ${
+                        formData.action === 'donate'
+                          ? 'border-green-500 bg-green-50 text-green-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <i className="ri-gift-line text-2xl"></i>
+                        <span>Donate</span>
+                        <span className="text-xs text-gray-500">Help others</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, action: 'recycle' })}
+                      className={`p-4 rounded-2xl border-2 transition-all text-sm font-medium ${
+                        formData.action === 'recycle'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <i className="ri-recycle-line text-2xl"></i>
+                        <span>Recycle</span>
+                        <span className="text-xs text-gray-500">Eco-friendly</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <Button onClick={handleSubmit} disabled={!canSubmit} className="w-full !rounded-button">
+              Submit Request
+            </Button>
+          </form>
+        </main>
+
+        <Navigation />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pb-24">
-      <Header 
-        title="Donate Device" 
-        showBack 
-        onBack={() => {
-          if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-          } else {
-            router.push('/');
-          }
-        }} 
-      />
-      
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white pb-24">
+      <Header title="Donate or Recycle" showBack onBack={handleBack} />
+
       <main className="pt-20 px-4">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Step {currentStep} of 3</span>
-            <span className="text-sm text-gray-500">
-              {currentStep === 1 ? 'Device Type' : currentStep === 2 ? 'Condition' : 'Details'}
-            </span>
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="ri-recycle-line text-white text-2xl"></i>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-[#4CAF50] h-2 rounded-full transition-all duration-300" 
-              style={{width: `${(currentStep / 3) * 100}%`}}
-            ></div>
-          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">What item do you want to donate or recycle?</h2>
+          <p className="text-gray-600">Choose from the categories below to get started</p>
         </div>
 
-        {renderStepContent()}
-
-        {/* Action Buttons */}
-        <div className="mt-8 space-y-3">
-          {currentStep < 3 ? (
-            <Button
-              onClick={handleNext}
-              disabled={
-                (currentStep === 1 && !deviceType) ||
-                (currentStep === 2 && !deviceCondition)
-              }
-              className="w-full"
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          {ewasteCategories.map((category) => (
+            <Card
+              key={category.id}
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+              onClick={() => handleItemSelect(category.id)}
             >
-              Continue
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!deviceDetails.brand || !deviceDetails.model}
-              className="w-full"
-            >
-              Submit Donation
-            </Button>
-          )}
-          
-          {currentStep > 1 && (
-            <Button
-              variant="outline"
-              onClick={() => setCurrentStep(currentStep - 1)}
-              className="w-full"
-            >
-              Back
-            </Button>
-          )}
+              <div className="text-center p-2">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-50 mx-auto mb-3">
+                  <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+                </div>
+                <h3 className="font-semibold text-gray-900 text-sm mb-1">{category.name}</h3>
+                <p className="text-xs text-gray-500 leading-tight">{category.description}</p>
+              </div>
+            </Card>
+          ))}
         </div>
+
+        <Card className="bg-green-50 border-green-200">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <i className="ri-leaf-line text-white text-sm"></i>
+            </div>
+            <div>
+              <h4 className="font-semibold text-green-800 mb-1">Make a Difference</h4>
+              <p className="text-sm text-green-700">
+                Every item you donate or recycle helps reduce e-waste and supports our community.
+              </p>
+            </div>
+          </div>
+        </Card>
       </main>
 
       <Navigation />

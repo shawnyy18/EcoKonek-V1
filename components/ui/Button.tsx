@@ -22,10 +22,10 @@ export default function Button({
   const baseClasses = '!rounded-button font-medium transition-all duration-200 flex items-center justify-center gap-2';
   
   const variants = {
-    primary: 'bg-[#4CAF50] text-white shadow-lg hover:bg-[#45a049] active:scale-95',
-    secondary: 'bg-[#66BB6A] text-white shadow-md hover:bg-[#5cae60] active:scale-95',
-    outline: 'border-2 border-[#4CAF50] text-[#4CAF50] bg-white hover:bg-[#4CAF50] hover:text-white active:scale-95',
-    ghost: 'text-[#4CAF50] bg-transparent hover:bg-[#4CAF50]/10 active:scale-95'
+    primary: 'bg-green-500 text-white shadow-lg hover:bg-green-600 active:scale-95',
+    secondary: 'bg-green-400 text-white shadow-md hover:bg-green-500 active:scale-95',
+    outline: 'border-2 border-green-500 text-green-500 bg-white hover:bg-green-500 hover:text-white active:scale-95',
+    ghost: 'text-green-500 bg-transparent hover:bg-green-100 active:scale-95'
   };
   
   const sizes = {
@@ -34,12 +34,14 @@ export default function Button({
     lg: 'px-8 py-4 text-lg'
   };
   
+  const buttonClasses = `${baseClasses} ${variants[variant]} ${sizes[size]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`;
+  
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+      className={buttonClasses}
     >
       {children}
     </button>

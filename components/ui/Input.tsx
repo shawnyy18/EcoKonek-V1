@@ -1,3 +1,4 @@
+
 'use client';
 
 interface InputProps {
@@ -40,7 +41,7 @@ export default function Input({
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className={`w-full px-4 py-3 ${icon ? 'pl-12' : ''} bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent transition-all duration-200 text-sm`}
+          className={`w-full px-4 py-3 ${icon ? 'pl-12' : ''} bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm text-gray-900 placeholder-gray-500`}
         />
       </div>
     </div>
