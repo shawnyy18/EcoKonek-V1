@@ -1,10 +1,14 @@
 
 'use client';
 
+import React from 'react';
+
 interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className'> {
   label?: string;
   icon?: React.ReactNode;
   className?: string;
+  min?: string | number;
+  max?: string | number;
 }
 
 export default function Input({
