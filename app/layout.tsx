@@ -21,8 +21,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EcoKonek PH",
-  description: "E-waste collection and climate action platform",
+  title: "EcoKonek",
+  description: "A Smart Mobile Solution for Responsible E-Waste Disposal and Bridging the Digital Gap in Local Communities in Mexico, Pampanga",
 };
 
 export default function RootLayout({
