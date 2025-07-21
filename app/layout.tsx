@@ -45,12 +45,12 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://ecokonek.vercel.app'),
   icons: {
     icon: [
+      { url: '/favicon.ico' },
       { url: '/favicon.png' },
       { url: '/favicon/Konek.png' },
     ],
     apple: [
       { url: '/apple-touch-icon.png' },
-      { url: '/favicon/Konek.png', sizes: '180x180' },
     ],
   },
   openGraph: {
@@ -85,9 +85,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
-        <link rel="icon" href="/favicon/Konek.png" type="image/png" />
-        <link rel="shortcut icon" href="/favicon/Konek.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/favicon/Konek.png" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${pacifico.variable} antialiased transition-colors duration-300`}
