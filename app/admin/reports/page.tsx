@@ -34,6 +34,19 @@ export default function AdminReportsPage() {
     }
   };
 
+  const handleCloseAdmin = () => {
+    if (isRouterReady) {
+      try {
+        router.push('/');
+      } catch (error) {
+        console.error('Navigation error:', error);
+        window.location.href = '/';
+      }
+    } else {
+      window.location.href = '/';
+    }
+  };
+
   const handleExport = (format: 'pdf' | 'excel') => {
     console.log(`Exporting ${format} report for period: ${selectedPeriod}`);
     // Simulate export
@@ -135,6 +148,8 @@ export default function AdminReportsPage() {
         title="Analytics & Reports"
         showBack={true}
         onBack={handleBack}
+        showCloseAdmin={true}
+        onCloseAdmin={handleCloseAdmin}
         rightAction={
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={() => handleExport('excel')}>

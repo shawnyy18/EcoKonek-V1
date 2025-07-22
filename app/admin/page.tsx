@@ -574,6 +574,9 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pb-24">
       <Header 
         title="LGU Admin Dashboard" 
+        showBack={true}
+        backButtonStyle="close"
+        onBack={() => handleNavigation('/')}
         rightAction={
           <div className="flex items-center gap-2 relative">
             <button 

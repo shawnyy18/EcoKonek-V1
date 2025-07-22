@@ -108,6 +108,19 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleCloseAdmin = () => {
+    if (isRouterReady) {
+      try {
+        router.push('/');
+      } catch (error) {
+        console.error('Navigation error:', error);
+        window.location.href = '/';
+      }
+    } else {
+      window.location.href = '/';
+    }
+  };
+
   const filteredUsers = usersData.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -270,6 +283,8 @@ export default function AdminUsersPage() {
         title="User Management"
         showBack={true}
         onBack={handleBack}
+        showCloseAdmin={true}
+        onCloseAdmin={handleCloseAdmin}
         rightAction={
           <Button variant="ghost" size="sm" onClick={handleAddUser}>
             <i className="ri-add-line"></i>
