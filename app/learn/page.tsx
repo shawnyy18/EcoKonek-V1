@@ -20,6 +20,7 @@ interface LearningCard {
     options: string[];
     correct: number;
   };
+  readingTime: number; // in seconds
 }
 
 export default function Learn() {
@@ -34,6 +35,9 @@ export default function Learn() {
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizAnswered, setQuizAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [cardStartTime, setCardStartTime] = useState<number>(0);
+  const [hasReadCard, setHasReadCard] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
 
   const facts: LearningCard[] = [
     {
@@ -42,6 +46,7 @@ export default function Learn() {
       description: '54 million tons of e-waste are generated globally every year. This equals the weight of 5,400 Eiffel Towers!',
       icon: 'ri-earth-line',
       color: 'from-blue-500 to-blue-600',
+      readingTime: 8,
       quiz: {
         question: 'How much e-waste is generated globally each year?',
         options: ['10 million tons', '54 million tons', '100 million tons', '25 million tons'],
@@ -54,6 +59,7 @@ export default function Learn() {
       description: 'Only 20% of global e-waste is properly recycled. The rest ends up in landfills or informal recycling.',
       icon: 'ri-recycle-line',
       color: 'from-blue-500 to-blue-600',
+      readingTime: 6,
       quiz: {
         question: 'What percentage of e-waste is properly recycled worldwide?',
         options: ['50%', '35%', '20%', '60%'],
@@ -65,14 +71,16 @@ export default function Learn() {
       title: 'Philippines Impact',
       description: 'The Philippines generates 3.2 million tons of e-waste annually, making proper disposal crucial for our environment.',
       icon: 'ri-flag-line',
-      color: 'from-blue-500 to-blue-600'
+      color: 'from-blue-500 to-blue-600',
+      readingTime: 7
     },
     {
       id: 'fact4',
       title: 'Toxic Materials',
       description: 'Electronics contain over 1,000 harmful substances including lead, mercury, and cadmium that can damage health.',
       icon: 'ri-skull-line',
-      color: 'from-blue-500 to-blue-600'
+      color: 'from-blue-500 to-blue-600',
+      readingTime: 8
     }
   ];
 
@@ -83,6 +91,7 @@ export default function Learn() {
       description: 'Use protective cases, avoid extreme temperatures, and perform regular maintenance to make your devices last longer.',
       icon: 'ri-shield-check-line',
       color: 'from-green-500 to-green-600',
+      readingTime: 10,
       image: 'https://readdy.ai/api/search-image?query=Person%20taking%20care%20of%20smartphone%20with%20protective%20case%2C%20clean%20modern%20home%20setting%2C%20natural%20lighting%2C%20lifestyle%20photography%2C%20professional%20quality%2C%20caring%20hands%20holding%20device&width=300&height=200&seq=tips1&orientation=landscape'
     },
     {
@@ -91,6 +100,7 @@ export default function Learn() {
       description: 'Giving away old but working gadgets helps reduce harmful waste and provides technology access to others.',
       icon: 'ri-gift-line',
       color: 'from-green-500 to-green-600',
+      readingTime: 9,
       image: 'https://readdy.ai/api/search-image?query=Person%20donating%20old%20electronic%20devices%2C%20community%20center%20setting%2C%20helping%20others%2C%20social%20impact%20photography%2C%20warm%20lighting%2C%20charitable%20giving%20concept&width=300&height=200&seq=tips2&orientation=landscape',
       quiz: {
         question: 'True or False: Donating old devices helps reduce e-waste.',
@@ -104,6 +114,7 @@ export default function Learn() {
       description: 'Always wipe personal data completely before donating or recycling devices to protect your privacy.',
       icon: 'ri-lock-line',
       color: 'from-green-500 to-green-600',
+      readingTime: 8,
       image: 'https://readdy.ai/api/search-image?query=Person%20securely%20deleting%20data%20from%20smartphone%2C%20close-up%20hands%20typing%2C%20modern%20device%20interface%2C%20security%20concept%2C%20professional%20photography&width=300&height=200&seq=tips3&orientation=landscape'
     },
     {
@@ -112,6 +123,7 @@ export default function Learn() {
       description: 'Only use certified e-waste recycling facilities to ensure proper disposal and environmental protection.',
       icon: 'ri-award-line',
       color: 'from-green-500 to-green-600',
+      readingTime: 9,
       image: 'https://readdy.ai/api/search-image?query=Certified%20e-waste%20recycling%20facility%2C%20modern%20clean%20environment%2C%20workers%20in%20safety%20gear%2C%20professional%20industrial%20setting%2C%20sustainability%20concept&width=300&height=200&seq=tips4&orientation=landscape'
     }
   ];
@@ -122,7 +134,8 @@ export default function Learn() {
       title: 'Environmental Benefits',
       description: 'Proper e-waste management reduces landfill waste by 90% and prevents soil and water contamination.',
       icon: 'ri-leaf-line',
-      color: 'from-yellow-500 to-yellow-600'
+      color: 'from-yellow-500 to-yellow-600',
+      readingTime: 8
     },
     {
       id: 'impact2',
@@ -130,6 +143,7 @@ export default function Learn() {
       description: 'E-waste recycling creates jobs, supports communities, and provides devices to students in need.',
       icon: 'ri-community-line',
       color: 'from-yellow-500 to-yellow-600',
+      readingTime: 7,
       quiz: {
         question: 'How does e-waste recycling help communities?',
         options: ['Creates jobs only', 'Provides devices to students only', 'Both creates jobs and provides devices', 'Has no social impact'],
@@ -141,9 +155,34 @@ export default function Learn() {
       title: 'Economic Value',
       description: 'Recycling recovers valuable materials worth billions, reduces mining costs, and creates a circular economy.',
       icon: 'ri-money-dollar-circle-line',
-      color: 'from-yellow-500 to-yellow-600'
+      color: 'from-yellow-500 to-yellow-600',
+      readingTime: 9
     }
   ];
+
+  // Initialize reading timer when card changes
+  useEffect(() => {
+    const startTime = Date.now();
+    setCardStartTime(startTime);
+    setHasReadCard(false);
+    setReadingProgress(0);
+
+    const currentCard = getCurrentCard();
+    if (currentCard) {
+      const interval = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        const progress = Math.min((elapsed / currentCard.readingTime) * 100, 100);
+        setReadingProgress(progress);
+
+        if (progress >= 100) {
+          setHasReadCard(true);
+          clearInterval(interval);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [currentSection, currentCardIndex]);
 
   const getCurrentCards = () => {
     switch (currentSection) {
@@ -177,7 +216,7 @@ export default function Learn() {
     }
   };
 
-  const awardPoints = (amount: number) => {
+  const awardPoints = (amount: number, reason: string) => {
     setPoints(prev => prev + amount);
     setEarnedPoints(amount);
     setShowPointAnimation(true);
@@ -187,14 +226,14 @@ export default function Learn() {
   const markCardCompleted = (cardId: string) => {
     if (!completedCards.has(cardId)) {
       setCompletedCards(prev => new Set([...prev, cardId]));
-      awardPoints(1);
+      awardPoints(2, 'reading'); // 2 points for completing reading
     }
   };
 
   const completeSection = (section: string) => {
     if (!completedSections.has(section)) {
       setCompletedSections(prev => new Set([...prev, section]));
-      awardPoints(3);
+      awardPoints(5, 'section'); // 5 points for completing section
     }
   };
 
@@ -202,7 +241,8 @@ export default function Learn() {
     const cards = getCurrentCards();
     const currentCard = getCurrentCard();
 
-    if (currentCard && !completedCards.has(currentCard.id)) {
+    // Only award points if user has actually read the card
+    if (currentCard && !completedCards.has(currentCard.id) && hasReadCard) {
       markCardCompleted(currentCard.id);
     }
 
@@ -242,7 +282,7 @@ export default function Learn() {
     setQuizAnswered(true);
     const currentCard = getCurrentCard();
     if (currentCard?.quiz && answerIndex === currentCard.quiz.correct) {
-      awardPoints(1);
+      awardPoints(3, 'quiz'); // 3 points for correct quiz answer
     }
   };
 
@@ -252,6 +292,25 @@ export default function Learn() {
     setShowQuiz(false);
     setQuizAnswered(false);
     setSelectedAnswer(null);
+  };
+
+  const getNextButtonText = () => {
+    const currentCard = getCurrentCard();
+    const cards = getCurrentCards();
+
+    if (!hasReadCard && currentCard) {
+      return `Reading... (${Math.round(readingProgress)}%)`;
+    }
+
+    if (currentCardIndex === cards.length - 1) {
+      return currentSection === 'impact' ? 'Complete' : 'Next Section';
+    }
+
+    return 'Next';
+  };
+
+  const isNextDisabled = () => {
+    return !hasReadCard;
   };
 
   if (currentSection === 'welcome') {
@@ -268,7 +327,7 @@ export default function Learn() {
             <p className="text-gray-600 mb-2">
               Discover facts, helpful tips, and your environmental impact.
             </p>
-            <p className="text-green-600 font-medium"> Earn points as you go!</p>
+            <p className="text-green-600 font-medium">Earn points by reading and learning!</p>
           </div>
 
           <div className="space-y-4 mb-8">
@@ -280,7 +339,7 @@ export default function Learn() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">E-Waste Facts</h3>
-                    <p className="text-sm text-gray-600">4 cards • +7 points</p>
+                    <p className="text-sm text-gray-600">4 cards • 2 points each + 3 for quiz</p>
                   </div>
                 </div>
                 <Button size="sm" onClick={() => startSection('facts')}>Start</Button>
@@ -295,7 +354,7 @@ export default function Learn() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Best Practices</h3>
-                    <p className="text-sm text-gray-600">4 cards • +8 points</p>
+                    <p className="text-sm text-gray-600">4 cards • 2 points each + 3 for quiz</p>
                   </div>
                 </div>
                 <Button size="sm" onClick={() => startSection('tips')}>Start</Button>
@@ -310,7 +369,7 @@ export default function Learn() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Positive Impact</h3>
-                    <p className="text-sm text-gray-600">3 cards • +6 points</p>
+                    <p className="text-sm text-gray-600">3 cards • 2 points each + 3 for quiz</p>
                   </div>
                 </div>
                 <Button size="sm" onClick={() => startSection('impact')}>Start</Button>
@@ -321,7 +380,7 @@ export default function Learn() {
           <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
             <div className="text-center">
               <h3 className="font-semibold text-gray-900 mb-2">Complete All Sections</h3>
-              <p className="text-sm text-gray-600">Earn the EcoLearner badge and become an e-waste expert!</p>
+              <p className="text-sm text-gray-600">Read carefully to earn points and become an e-waste expert!</p>
             </div>
           </Card>
         </main>
@@ -441,6 +500,19 @@ export default function Learn() {
               <i className={`${currentCard.icon} text-2xl`}></i>
             </div>
 
+            {/* Reading Progress Bar */}
+            <div className="mb-4">
+              <div className="w-full bg-gray-200 rounded-full h-1">
+                <div
+                  className={`bg-${color}-500 h-1 rounded-full transition-all duration-300`}
+                  style={{ width: `${readingProgress}%` }}
+                ></div>
+              </div>
+              <div className="text-xs text-gray-500 mt-1 text-center">
+                {hasReadCard ? '✓ Reading complete' : `Reading... ${Math.round(readingProgress)}%`}
+              </div>
+            </div>
+
             {currentCard.image && (
               <div className="mb-4 rounded-2xl overflow-hidden">
                 <img
@@ -457,7 +529,7 @@ export default function Learn() {
             </div>
 
             {/* Quiz Section */}
-            {currentCard.quiz && !showQuiz && (
+            {currentCard.quiz && !showQuiz && hasReadCard && (
               <div className="mt-6 pt-4 border-t">
                 <Button
                   variant="outline"
@@ -466,7 +538,7 @@ export default function Learn() {
                   onClick={() => setShowQuiz(true)}
                 >
                   <i className="ri-question-line mr-2"></i>
-                  Take Quick Quiz (+1 point)
+                  Take Quick Quiz (+3 points)
                 </Button>
               </div>
             )}
@@ -502,7 +574,7 @@ export default function Learn() {
                         ? 'text-green-600'
                         : 'text-red-600'
                     }`}>
-                      {selectedAnswer === currentCard.quiz.correct ? 'Correct! +1 Point ⭐' : 'Try again next time!'}
+                      {selectedAnswer === currentCard.quiz.correct ? 'Correct! +3 Points ⭐' : 'Try again next time!'}
                     </p>
                   </div>
                 )}
@@ -527,19 +599,18 @@ export default function Learn() {
           <Button
             size="sm"
             onClick={handleNext}
+            disabled={isNextDisabled()}
             className="flex-1 ml-2 !rounded-button"
           >
-            {currentCardIndex === cards.length - 1 ? (
-              currentSection === 'impact' ? 'Complete' : 'Next Section'
-            ) : 'Next'}
-            <i className="ri-arrow-right-line ml-2"></i>
+            {getNextButtonText()}
+            {hasReadCard && <i className="ri-arrow-right-line ml-2"></i>}
           </Button>
         </div>
 
         {/* Section Info */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            Section: {getSectionTitle()} • {cards.length} cards
+            Section: {getSectionTitle()} • {cards.length} cards • 2 points per card read
           </p>
         </div>
       </main>
